@@ -22,18 +22,16 @@ const callstatsjssip = window.callstatsjssip;
 
 const logger = new Logger('Phone');
 
-export default class Phone extends React.Component
-{
-	constructor(props)
-	{
+export default class Phone extends React.Component {
+	constructor(props) {
 		super(props);
 
 		this.state =
 		{
 			// 'connecting' / disconnected' / 'connected' / 'registered'
-			status          : 'disconnected',
-			session         : null,
-			incomingSession : null
+			status: 'disconnected',
+			session: null,
+			incomingSession: null
 		};
 
 		// Mounted flag
@@ -44,8 +42,7 @@ export default class Phone extends React.Component
 		this._u = new UrlParse(window.location.href, true);
 	}
 
-	render()
-	{
+	render() {
 		const state = this.state;
 		const props = this.props;
 		const invitationLink = `${this._u.protocol}//${this._u.host}${this._u.pathname}?callme=${props.settings.uri}`;
@@ -62,7 +59,7 @@ export default class Phone extends React.Component
 							<IconMenu
 								iconButtonElement={
 									<IconButton>
-										<MoreVertIcon color='#fff'/>
+										<MoreVertIcon color='#fff' />
 									</IconButton>
 								}
 								anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -120,24 +117,18 @@ export default class Phone extends React.Component
 		);
 	}
 
-	startIceGatheringTimer(session)
-	{
-		if (typeof(this.props.settings.ice_gather_timeout) === 'number' &&
-			this.props.settings.ice_gather_timeout > 0)
-		{
+	startIceGatheringTimer(session) {
+		if (typeof (this.props.settings.ice_gather_timeout) === 'number' &&
+			this.props.settings.ice_gather_timeout > 0) {
 			let timeoutFn = null;
 			let sdp = false;
 
 			logger.debug('starting icecandidate gather timer expiring in %s ms',
 				this.props.settings.ice_gather_timeout.toString());
-			session.on('icecandidate', (icecandidatedata) =>
-			{
-				if (!timeoutFn)
-				{
-					setTimeout(timeoutFn = function()
-					{
-						if (!sdp)
-						{
+			session.on('icecandidate', (icecandidatedata) => {
+				if (!timeoutFn) {
+					setTimeout(timeoutFn = function () {
+						if (!sdp) {
 							logger.debug('icecandidate gather timeout');
 							icecandidatedata.ready();
 						}
@@ -145,18 +136,15 @@ export default class Phone extends React.Component
 				}
 			});
 
-			session.on('sdp', (sdpdata) =>
-			{
-				if (sdpdata.originator == 'local')
-				{
+			session.on('sdp', (sdpdata) => {
+				if (sdpdata.originator == 'local') {
 					sdp = true;
 				}
 			});
 		}
 	}
 
-	componentDidMount()
-	{
+	componentDidMount() {
 		this._mounted = true;
 
 		const settings = this.props.settings;
@@ -165,32 +153,31 @@ export default class Phone extends React.Component
 		if (settings.socket['via_transport'] !== 'auto')
 			socket['via_transport'] = settings.socket['via_transport'];
 
-		try
-		{
+		try {
 			this._ua = new JsSIP.UA(
 				{
-					uri                   : settings.uri,
-					password              : settings.password,
-					'display_name'        : settings.display_name,
-					sockets               : [ socket ],
-					'registrar_server'    : settings.registrar_server,
-					'contact_uri'         : settings.contact_uri,
-					'authorization_user'  : settings.authorization_user,
-					'instance_id'         : settings.instance_id,
-					'session_timers'      : settings.session_timers,
-					'use_preloaded_route' : settings.use_preloaded_route
+					uri: settings.uri,
+					password: settings.password,
+					'display_name': settings.display_name,
+					sockets: [socket],
+					'registrar_server': settings.registrar_server,
+					'contact_uri': settings.contact_uri,
+					'authorization_user': settings.authorization_user,
+					'instance_id': settings.instance_id,
+					'session_timers': false,
+					'use_preloaded_route': settings.use_preloaded_route,
+					'user_agent': 'Sorenson Videophone WebRTC'
 				});
 
 			// TODO: For testing.
 			window.UA = this._ua;
 		}
-		catch (error)
-		{
+		catch (error) {
 			this.props.onNotify(
 				{
-					level   : 'error',
-					title   : 'Wrong JsSIP.UA settings',
-					message : error.message
+					level: 'error',
+					title: 'Wrong JsSIP.UA settings',
+					message: error.message
 				});
 
 			this.props.onExit();
@@ -198,8 +185,7 @@ export default class Phone extends React.Component
 			return;
 		}
 
-		this._ua.on('connecting', () =>
-		{
+		this._ua.on('connecting', () => {
 			if (!this._mounted)
 				return;
 
@@ -207,13 +193,12 @@ export default class Phone extends React.Component
 
 			this.setState(
 				{
-					uri    : this._ua.configuration.uri.toString(),
-					status : 'connecting'
+					uri: this._ua.configuration.uri.toString(),
+					status: 'connecting'
 				});
 		});
 
-		this._ua.on('connected', () =>
-		{
+		this._ua.on('connected', () => {
 			if (!this._mounted)
 				return;
 
@@ -222,8 +207,7 @@ export default class Phone extends React.Component
 			this.setState({ status: 'connected' });
 		});
 
-		this._ua.on('disconnected', () =>
-		{
+		this._ua.on('disconnected', () => {
 			if (!this._mounted)
 				return;
 
@@ -232,8 +216,7 @@ export default class Phone extends React.Component
 			this.setState({ status: 'disconnected' });
 		});
 
-		this._ua.on('registered', () =>
-		{
+		this._ua.on('registered', () => {
 			if (!this._mounted)
 				return;
 
@@ -242,8 +225,7 @@ export default class Phone extends React.Component
 			this.setState({ status: 'registered' });
 		});
 
-		this._ua.on('unregistered', () =>
-		{
+		this._ua.on('unregistered', () => {
 			if (!this._mounted)
 				return;
 
@@ -255,8 +237,7 @@ export default class Phone extends React.Component
 				this.setState({ status: 'disconnected' });
 		});
 
-		this._ua.on('registrationFailed', (data) =>
-		{
+		this._ua.on('registrationFailed', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -269,14 +250,13 @@ export default class Phone extends React.Component
 
 			this.props.onNotify(
 				{
-					level   : 'error',
-					title   : 'Registration failed',
-					message : data.cause
+					level: 'error',
+					title: 'Registration failed',
+					message: data.cause
 				});
 		});
 
-		this._ua.on('newRTCSession', (data) =>
-		{
+		this._ua.on('newRTCSession', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -284,8 +264,7 @@ export default class Phone extends React.Component
 			window.SESSION = data.session;
 			const session = data.session;
 
-			if (data.originator === 'local')
-			{
+			if (data.originator === 'local') {
 				this.startIceGatheringTimer(session);
 
 				return;
@@ -296,14 +275,13 @@ export default class Phone extends React.Component
 			const state = this.state;
 
 			// Avoid if busy or other incoming
-			if (state.session || state.incomingSession)
-			{
+			if (state.session || state.incomingSession) {
 				logger.debug('incoming call replied with 486 "Busy Here"');
 
 				session.terminate(
 					{
-						'status_code'   : 486,
-						'reason_phrase' : 'Busy Here'
+						'status_code': 486,
+						'reason_phrase': 'Busy Here'
 					});
 
 				return;
@@ -312,32 +290,29 @@ export default class Phone extends React.Component
 			audioPlayer.play('ringing');
 			this.setState({ incomingSession: session });
 
-			session.on('failed', () =>
-			{
+			session.on('failed', () => {
 				audioPlayer.stop('ringing');
 				this.setState(
 					{
-						session         : null,
-						incomingSession : null
+						session: null,
+						incomingSession: null
 					});
 			});
 
-			session.on('ended', () =>
-			{
+			session.on('ended', () => {
 				this.setState(
 					{
-						session         : null,
-						incomingSession : null
+						session: null,
+						incomingSession: null
 					});
 			});
 
-			session.on('accepted', () =>
-			{
+			session.on('accepted', () => {
 				audioPlayer.stop('ringing');
 				this.setState(
 					{
-						session         : session,
-						incomingSession : null
+						session: session,
+						incomingSession: null
 					});
 			});
 
@@ -346,8 +321,7 @@ export default class Phone extends React.Component
 		this._ua.start();
 
 		// Set callstats stuff
-		if (settings.callstats.enabled)
-		{
+		if (settings.callstats.enabled) {
 			callstatsjssip(
 				// JsSIP.UA instance
 				this._ua,
@@ -360,13 +334,11 @@ export default class Phone extends React.Component
 		}
 	}
 
-	componentWillUnmount()
-	{
+	componentWillUnmount() {
 		this._mounted = false;
 	}
 
-	handleMenuCopyInvitationLink()
-	{
+	handleMenuCopyInvitationLink() {
 		logger.debug('handleMenuCopyInvitationLink()');
 
 		const message = 'Invitation link copied to the clipboard';
@@ -374,8 +346,7 @@ export default class Phone extends React.Component
 		this.props.onShowSnackbar(message, 3000);
 	}
 
-	handleMenuCopyUri()
-	{
+	handleMenuCopyUri() {
 		logger.debug('handleMenuCopyUri()');
 
 		const message = 'Your SIP URI copied to the clipboard';
@@ -383,72 +354,64 @@ export default class Phone extends React.Component
 		this.props.onShowSnackbar(message, 3000);
 	}
 
-	handleMenuExit()
-	{
+	handleMenuExit() {
 		logger.debug('handleMenuExit()');
 
 		this._ua.stop();
 		this.props.onExit();
 	}
 
-	handleOutgoingCall(uri)
-	{
+	handleOutgoingCall(uri) {
 		logger.debug('handleOutgoingCall() [uri:"%s"]', uri);
 
 		const session = this._ua.call(uri,
 			{
-				pcConfig         : this.props.settings.pcConfig || { iceServers: [] },
-				mediaConstraints :
+				pcConfig: this.props.settings.pcConfig || { iceServers: [] },
+				mediaConstraints:
 				{
-					audio : true,
-					video : true
+					audio: true,
+					video: true
 				},
-				rtcOfferConstraints :
+				rtcOfferConstraints:
 				{
-					offerToReceiveAudio : 1,
-					offerToReceiveVideo : 1
+					offerToReceiveAudio: 1,
+					offerToReceiveVideo: 1
 				}
 			});
 
-		session.on('connecting', () =>
-		{
+		session.on('connecting', () => {
 			this.setState({ session });
 		});
 
-		session.on('progress', () =>
-		{
+		session.on('progress', () => {
 			audioPlayer.play('ringback');
 		});
 
-		session.on('failed', (data) =>
-		{
+		session.on('failed', (data) => {
 			audioPlayer.stop('ringback');
 			audioPlayer.play('rejected');
 			this.setState({ session: null });
 
 			this.props.onNotify(
 				{
-					level   : 'error',
-					title   : 'Call failed',
-					message : data.cause
+					level: 'error',
+					title: 'Call failed',
+					message: data.cause
 				});
 		});
 
-		session.on('ended', () =>
-		{
+		session.on('ended', () => {
 			audioPlayer.stop('ringback');
 			this.setState({ session: null });
 		});
 
-		session.on('accepted', () =>
-		{
+		session.on('accepted', () => {
 			audioPlayer.stop('ringback');
 			audioPlayer.play('answered');
 		});
 	}
 
-	handleAnswerIncoming()
-	{
+	handleAnswerIncoming() {
 		logger.debug('handleAnswerIncoming()');
 
 		const session = this.state.incomingSession;
@@ -456,12 +419,11 @@ export default class Phone extends React.Component
 		this.startIceGatheringTimer(session);
 		session.answer(
 			{
-				pcConfig : this.props.settings.pcConfig || { iceServers: [] }
+				pcConfig: this.props.settings.pcConfig || { iceServers: [] }
 			});
 	}
 
-	handleRejectIncoming()
-	{
+	handleRejectIncoming() {
 		logger.debug('handleRejectIncoming()');
 
 		const session = this.state.incomingSession;
@@ -472,10 +434,10 @@ export default class Phone extends React.Component
 
 Phone.propTypes =
 {
-	settings           : PropTypes.object.isRequired,
-	onNotify           : PropTypes.func.isRequired,
-	onHideNotification : PropTypes.func.isRequired,
-	onShowSnackbar     : PropTypes.func.isRequired,
-	onHideSnackbar     : PropTypes.func.isRequired,
-	onExit             : PropTypes.func.isRequired
+	settings: PropTypes.object.isRequired,
+	onNotify: PropTypes.func.isRequired,
+	onHideNotification: PropTypes.func.isRequired,
+	onShowSnackbar: PropTypes.func.isRequired,
+	onHideSnackbar: PropTypes.func.isRequired,
+	onExit: PropTypes.func.isRequired
 };
