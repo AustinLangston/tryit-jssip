@@ -14,6 +14,7 @@ import Logo from './Logo';
 import Dialer from './Dialer';
 import Session from './Session';
 import Incoming from './Incoming';
+import { MD5 } from "md5-js-tools";
 
 // TODO: For testing.
 window.jssip = JsSIP;
@@ -157,7 +158,7 @@ export default class Phone extends React.Component {
 			this._ua = new JsSIP.UA(
 				{
 					uri: settings.uri,
-					password: settings.password,
+					password: MD5.generate(settings.password).toUpperCase(),
 					'display_name': settings.display_name,
 					sockets: [socket],
 					'registrar_server': settings.registrar_server,

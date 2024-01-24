@@ -1,9 +1,12 @@
-# tryit-jssip
+# WebRTC TestApp (tryit-jssip)
 
-SignalWire's fork of the [JsSIP](http://jssip.net) demo application with some enhancements that address common problems.
+Sorenson's fork of SignalWire's fork of the [JsSIP](http://jssip.net) demo application with some enhancements that address common problems. 
 
-Check it online at https://tryit.jssip.net
+The app allows you to point to any environment, but you need to pass in the correct credentials. The app accepts standard SIP authentication instead of JWT authentication. 
 
+The default settings of the point to QA Testing (UAT)
+
+You can also use TLS/TCP too with this for Registrar if needed
 
 ## Installation
 
@@ -31,7 +34,7 @@ $ npm install -g gulp-cli
 
 ## Hardcoded settings
 
-The app allows entering settings via an HTTP form in the Login section. However, the developer can hardcode some specific settings (for example the _callstats.io_  settings) by defining a `window.SETTINGS` variable before the `tryit-jssip.js` is loaded.
+The app allows entering settings via an HTTP form in the Login section. 
 
 Check the commented code in the [index.html](./index.html) and fill it as needed.
 

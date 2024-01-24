@@ -6,23 +6,21 @@ import classnames from 'classnames';
 import Logger from '../Logger';
 import utils from '../utils';
 import UserChip from './UserChip';
+import * as constants from '../settingsManager';
 
 const logger = new Logger('Dialer');
 
-export default class Dialer extends React.Component
-{
-	constructor(props)
-	{
+export default class Dialer extends React.Component {
+	constructor(props) {
 		super(props);
 
 		this.state =
 		{
-			uri : props.callme || ''
+			uri: props.callme || ''
 		};
 	}
 
-	render()
-	{
+	render() {
 		const state = this.state;
 		const props = this.props;
 		const settings = props.settings;
@@ -64,13 +62,11 @@ export default class Dialer extends React.Component
 		);
 	}
 
-	handleUriChange(event)
-	{
+	handleUriChange(event) {
 		this.setState({ uri: event.target.value });
 	}
 
-	handleSubmit(event)
-	{
+	handleSubmit(event) {
 		logger.debug('handleSubmit()');
 
 		event.preventDefault();
@@ -81,25 +77,32 @@ export default class Dialer extends React.Component
 		this._doCall();
 	}
 
-	handleClickCall()
-	{
+	handleClickCall() {
 		logger.debug('handleClickCall()');
 
 		this._doCall();
 	}
 
-	_doCall()
-	{
-		const uri = this.state.uri;
+	_doCall() {
+		var uri = this.state.uri;
 
 		logger.debug('_doCall() [uri:"%s"]', uri);
+
+		if (!uri.includes("sip:")) {
+			uri = "sip:" + uri
+		}
+
+		if (uri.includes("@undefined")) {
+			uri = uri.replace("@undefined", "") + "@" + constants.DEFAULT_SIP_DOMAIN
+		}
+
+		logger.debug('Calling URI: ' + uri);
 
 		this.setState({ uri: '' });
 		this.props.onCall(uri);
 	}
 
-	_canCall()
-	{
+	_canCall() {
 		const props = this.props;
 
 		return (
@@ -111,9 +114,9 @@ export default class Dialer extends React.Component
 
 Dialer.propTypes =
 {
-	settings : PropTypes.object.isRequired,
-	status   : PropTypes.string.isRequired,
-	busy     : PropTypes.bool.isRequired,
-	callme   : PropTypes.string,
-	onCall   : PropTypes.func.isRequired
+	settings: PropTypes.object.isRequired,
+	status: PropTypes.string.isRequired,
+	busy: PropTypes.bool.isRequired,
+	callme: PropTypes.string,
+	onCall: PropTypes.func.isRequired
 };

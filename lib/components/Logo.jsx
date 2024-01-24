@@ -1,23 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class Logo extends React.Component
-{
-	constructor(props)
-	{
+export default class Logo extends React.Component {
+	constructor(props) {
 		super(props);
 
 		this.state = {};
 	}
 
-	render()
-	{
+	render() {
 		const size = this.props.size || 'big';
 
 		return (
 			<div data-component='Logo' className={size}>
 				<h1>
-					<span className='colorized'>TRYIT</span>J<span className='small'>S</span>SIP
+					<span className='colorized'>WebRTC TestApp</span>
 				</h1>
 			</div>
 		);
@@ -26,5 +23,5 @@ export default class Logo extends React.Component
 
 Logo.propTypes =
 {
-	size : PropTypes.string
+	size: PropTypes.string
 };

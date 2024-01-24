@@ -12,22 +12,19 @@ import TransitionAppear from './TransitionAppear';
 
 const logger = new Logger('Settings');
 
-export default class Settings extends React.Component
-{
-	constructor(props)
-	{
+export default class Settings extends React.Component {
+	constructor(props) {
 		super(props);
 
 		const settings = props.settings;
 
 		this.state =
 		{
-			settings : clone(settings, false)
+			settings: clone(settings, false)
 		};
 	}
 
-	render()
-	{
+	render() {
 		const settings = this.state.settings;
 
 		return (
@@ -73,11 +70,11 @@ export default class Settings extends React.Component
 							fullWidth
 							onChange={this.handleChangeViaTransport.bind(this)}
 						>
-							<MenuItem value='auto' primaryText='auto'/>
-							<MenuItem value='tcp' primaryText='TCP'/>
-							<MenuItem value='tls' primaryText='TLS'/>
-							<MenuItem value='ws' primaryText='WS'/>
-							<MenuItem value='wss' primaryText='WSS'/>
+							<MenuItem value='auto' primaryText='auto' />
+							<MenuItem value='tcp' primaryText='TCP' />
+							<MenuItem value='tls' primaryText='TLS' />
+							<MenuItem value='ws' primaryText='WS' />
+							<MenuItem value='wss' primaryText='WSS' />
 						</SelectField>
 					</div>
 
@@ -121,12 +118,12 @@ export default class Settings extends React.Component
 						/>
 					</div>
 
-					<div className='separator'/>
+					<div className='separator' />
 
 					<List>
 						<ListItem
 							primaryText='Session Timers'
-							secondaryText='Enable Session Timers as per RFC 4028'
+							secondaryText='Enable Session Timers: RFC 4028 (Will break some flows)'
 							secondaryTextLines={1}
 							rightToggle={
 								<Toggle
@@ -149,49 +146,9 @@ export default class Settings extends React.Component
 						/>
 					</List>
 
-					<div className='separator'/>
+					<div className='separator' />
 
-					<h1>callstats.io settings</h1>
-
-					<List>
-						<ListItem
-							primaryText='Enabled'
-							secondaryText='Send call statistics to callstats.io'
-							secondaryTextLines={1}
-							rightToggle={
-								<Toggle
-									defaultToggled={settings.callstats.enabled}
-									onToggle={this.handleToogleCallstatsEnabled.bind(this)}
-								/>
-							}
-						/>
-					</List>
-
-					<div className='separator'/>
-
-					<div className='item'>
-						<TextField
-							floatingLabelText='AppID'
-							value={settings.callstats.AppID || ''}
-							disabled={!settings.callstats.enabled}
-							floatingLabelFixed
-							fullWidth
-							onChange={this.handleChangeCallstatsAppID.bind(this)}
-						/>
-					</div>
-
-					<div className='item'>
-						<TextField
-							floatingLabelText='AppSecret'
-							value={settings.callstats.AppSecret || ''}
-							disabled={!settings.callstats.enabled}
-							floatingLabelFixed
-							fullWidth
-							onChange={this.handleChangeCallstatsAppSecret.bind(this)}
-						/>
-					</div>
-
-					<div className='separator'/>
+					<div className='separator' />
 
 					<div className='buttons'>
 						<RaisedButton
@@ -213,112 +170,98 @@ export default class Settings extends React.Component
 		);
 	}
 
-	handleChangeSipUri(event)
-	{
+	handleChangeSipUri(event) {
 		const settings = this.state.settings;
 
 		settings.uri = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangePassword(event)
-	{
+	handleChangePassword(event) {
 		const settings = this.state.settings;
 
 		settings.password = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangeWebSocketUri(event)
-	{
+	handleChangeWebSocketUri(event) {
 		const settings = this.state.settings;
 
 		settings.socket.uri = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangeViaTransport(event, key, value)
-	{
+	handleChangeViaTransport(event, key, value) {
 		const settings = this.state.settings;
 
 		settings.socket['via_transport'] = value;
 		this.setState({ settings });
 	}
 
-	handleChangeRegistrarServer(event)
-	{
+	handleChangeRegistrarServer(event) {
 		const settings = this.state.settings;
 
 		settings['registrar_server'] = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangeContactUri(event)
-	{
+	handleChangeContactUri(event) {
 		const settings = this.state.settings;
 
 		settings['contact_uri'] = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangeAuthorizationUser(event)
-	{
+	handleChangeAuthorizationUser(event) {
 		const settings = this.state.settings;
 
 		settings['authorization_user'] = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangeInstanceId(event)
-	{
+	handleChangeInstanceId(event) {
 		const settings = this.state.settings;
 
 		settings['instance_id'] = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleToogleSessionTimers()
-	{
+	handleToogleSessionTimers() {
 		const settings = this.state.settings;
 
 		settings['session_timers'] = !settings.session_timers;
 		this.setState({ settings });
 	}
 
-	handleToogleUsePreloadedRoute()
-	{
+	handleToogleUsePreloadedRoute() {
 		const settings = this.state.settings;
 
 		settings['use_preloaded_route'] = !settings.use_preloaded_route;
 		this.setState({ settings });
 	}
 
-	handleToogleCallstatsEnabled()
-	{
+	handleToogleCallstatsEnabled() {
 		const settings = this.state.settings;
 
 		settings['callstats']['enabled'] = !settings.callstats.enabled;
 		this.setState({ settings });
 	}
 
-	handleChangeCallstatsAppID(event)
-	{
+	handleChangeCallstatsAppID(event) {
 		const settings = this.state.settings;
 
 		settings.callstats.AppID = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleChangeCallstatsAppSecret(event)
-	{
+	handleChangeCallstatsAppSecret(event) {
 		const settings = this.state.settings;
 
 		settings.callstats.AppSecret = event.target.value;
 		this.setState({ settings });
 	}
 
-	handleSubmit()
-	{
+	handleSubmit() {
 		logger.debug('handleSubmit()');
 
 		const settings = this.state.settings;
@@ -326,8 +269,7 @@ export default class Settings extends React.Component
 		this.props.onSubmit(settings);
 	}
 
-	handleCancel()
-	{
+	handleCancel() {
 		logger.debug('handleCancel()');
 
 		this.props.onCancel();
@@ -336,7 +278,7 @@ export default class Settings extends React.Component
 
 Settings.propTypes =
 {
-	settings : PropTypes.object.isRequired,
-	onSubmit : PropTypes.func.isRequired,
-	onCancel : PropTypes.func.isRequired
+	settings: PropTypes.object.isRequired,
+	onSubmit: PropTypes.func.isRequired,
+	onCancel: PropTypes.func.isRequired
 };
