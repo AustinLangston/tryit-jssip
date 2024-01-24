@@ -1,6 +1,6 @@
 # WebRTC TestApp (tryit-jssip)
 
-Sorenson's fork of SignalWire's fork of the [JsSIP](http://jssip.net) demo application with some enhancements that address common problems. 
+Austin's fork of SignalWire's fork of the [JsSIP](http://jssip.net) demo application with some enhancements that address common problems. 
 
 The app allows you to point to any environment, but you need to pass in the correct credentials. The app accepts standard SIP authentication instead of JWT authentication. 
 
