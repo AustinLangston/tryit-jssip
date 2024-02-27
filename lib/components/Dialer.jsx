@@ -104,7 +104,9 @@ export default class Dialer extends React.Component {
 		if (!uri.includes("sip:")) {
 			uri = "sip:" + uri;
 			logger.debug('Bye: ', uri);
-		} else if (!uri.includes("@")) {
+		}
+
+		if (!uri.includes("@")) {
 			uri = uri + "@" + settingsManager.getDefaultDomain()
 		}
 
@@ -124,14 +126,13 @@ export default class Dialer extends React.Component {
 		var uri = this.state.uri;
 
 		logger.debug('_doVRSCall() [uri:"%s"]', uri);
-		var tempURI = uri;
-
-		tempURI = "sip:" + uri + "@" + settingsManager.getDefaultVRSDomain();
-		uri = tempURI;
-		logger.debug('_doVRSCall() [uri:"%s"]', tempURI);
 
 		if (!uri.includes("sip:")) {
 			uri = "sip:" + uri;
+		}
+
+		if (!uri.includes("@")) {
+			uri = uri + "@" + settingsManager.getDefaultVRSDomain()
 		}
 
 		if (uri.includes("@undefined")) {
@@ -141,7 +142,7 @@ export default class Dialer extends React.Component {
 		logger.debug('Calling URI: ' + uri);
 
 		this.setState({ uri: '' });
-		this.props.onCall(tempURI);
+		this.props.onCall(uri);
 	}
 
 	_canCall() {
