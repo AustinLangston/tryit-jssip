@@ -10,20 +10,18 @@ import TransitionAppear from './TransitionAppear';
 
 const logger = new Logger('Session');
 
-export default class Session extends React.Component
-{
-	constructor(props)
-	{
+export default class Session extends React.Component {
+	constructor(props) {
 		super(props);
 
 		this.state =
 		{
-			localHasVideo  : false,
-			remoteHasVideo : false,
-			localHold      : false,
-			remoteHold     : false,
-			canHold        : false,
-			ringing        : false
+			localHasVideo: false,
+			remoteHasVideo: false,
+			localHold: false,
+			remoteHold: false,
+			canHold: false,
+			ringing: false
 		};
 
 		// Mounted flag
@@ -32,8 +30,7 @@ export default class Session extends React.Component
 		this._localClonedStream = null;
 	}
 
-	render()
-	{
+	render() {
 		const state = this.state;
 		const props = this.props;
 		let noRemoteVideo;
@@ -105,8 +102,7 @@ export default class Session extends React.Component
 		);
 	}
 
-	componentDidMount()
-	{
+	componentDidMount() {
 		logger.debug('componentDidMount()');
 
 		this._mounted = true;
@@ -118,16 +114,14 @@ export default class Session extends React.Component
 		const remoteStream = peerconnection.getRemoteStreams()[0];
 
 		// Handle local stream
-		if (localStream)
-		{
+		if (localStream) {
 			// Clone local stream
 			this._localClonedStream = localStream.clone();
 
 			// Display local stream
 			localVideo.srcObject = this._localClonedStream;
 
-			setTimeout(() =>
-			{
+			setTimeout(() => {
 				if (!this._mounted)
 					return;
 
@@ -137,26 +131,24 @@ export default class Session extends React.Component
 		}
 
 		// If incoming all we already have the remote stream
-		if (remoteStream)
-		{
+		if (remoteStream) {
 			logger.debug('already have a remote stream');
 
 			this._handleRemoteStream(remoteStream);
 		}
 
-		if (session.isEstablished())
-		{
-			setTimeout(() =>
-			{
+		if (session.isEstablished()) {
+			setTimeout(() => {
 				if (!this._mounted)
 					return;
 
 				this.setState({ canHold: true });
 			});
+
+
 		}
 
-		session.on('progress', (data) =>
-		{
+		session.on('progress', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -166,27 +158,30 @@ export default class Session extends React.Component
 				this.setState({ ringing: true });
 		});
 
-		session.on('accepted', (data) =>
-		{
+		session.on('accepted', (data) => {
 			if (!this._mounted)
 				return;
 
-			logger.debug('session "accepted" event [data:%o]', data);
+			// This is one place (call accepted from outside H2D)
+			logger.debug('session "accepted" (Outgoing call connected) event [data:%o]', data);
 
-			if (session.direction === 'outgoing')
-			{
+			if (session.direction === 'outgoing') {
 				this.props.onNotify(
 					{
-						level : 'success',
-						title : 'Call answered'
+						level: 'success',
+						title: 'Call answered'
 					});
 			}
 
 			this.setState({ canHold: true, ringing: false });
 		});
 
-		session.on('failed', (data) =>
-		{
+		session.on('confirmed', (data) => {
+			// Here is the other place (D2H)
+			logger.debug('session has "started" (Incoming call accepted) event [data:%o]', data);
+		});
+
+		session.on('failed', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -194,17 +189,16 @@ export default class Session extends React.Component
 
 			this.props.onNotify(
 				{
-					level   : 'error',
-					title   : 'Call failed',
-					message : `Cause: ${data.cause}`
+					level: 'error',
+					title: 'Call failed',
+					message: `Cause: ${data.cause}`
 				});
 
 			if (session.direction === 'outgoing')
 				this.setState({ ringing: false });
 		});
 
-		session.on('ended', (data) =>
-		{
+		session.on('ended', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -212,17 +206,16 @@ export default class Session extends React.Component
 
 			this.props.onNotify(
 				{
-					level   : 'info',
-					title   : 'Call ended',
-					message : `Cause: ${data.cause}`
+					level: 'info',
+					title: 'Call ended',
+					message: `Cause: ${data.cause}`
 				});
 
 			if (session.direction === 'outgoing')
 				this.setState({ ringing: false });
 		});
 
-		session.on('hold', (data) =>
-		{
+		session.on('hold', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -230,8 +223,7 @@ export default class Session extends React.Component
 
 			logger.debug('session "hold" event [originator:%s]', originator);
 
-			switch (originator)
-			{
+			switch (originator) {
 				case 'local':
 					this.setState({ localHold: true });
 					break;
@@ -241,8 +233,7 @@ export default class Session extends React.Component
 			}
 		});
 
-		session.on('unhold', (data) =>
-		{
+		session.on('unhold', (data) => {
 			if (!this._mounted)
 				return;
 
@@ -250,8 +241,7 @@ export default class Session extends React.Component
 
 			logger.debug('session "unhold" event [originator:%s]', originator);
 
-			switch (originator)
-			{
+			switch (originator) {
 				case 'local':
 					this.setState({ localHold: false });
 					break;
@@ -261,12 +251,10 @@ export default class Session extends React.Component
 			}
 		});
 
-		peerconnection.addEventListener('addstream', (event) =>
-		{
+		peerconnection.addEventListener('addstream', (event) => {
 			logger.debug('peerconnection "addstream" event');
 
-			if (!this._mounted)
-			{
+			if (!this._mounted) {
 				logger.error('_handleRemoteStream() | component not mounted');
 
 				return;
@@ -276,37 +264,32 @@ export default class Session extends React.Component
 		});
 	}
 
-	componentWillUnmount()
-	{
+	componentWillUnmount() {
 		logger.debug('componentWillUnmount()');
 
 		this._mounted = false;
 		JsSIP.Utils.closeMediaStream(this._localClonedStream);
 	}
 
-	handleHangUp()
-	{
+	handleHangUp() {
 		logger.debug('handleHangUp()');
 
 		this.props.session.terminate();
 	}
 
-	handleHold()
-	{
+	handleHold() {
 		logger.debug('handleHold()');
 
 		this.props.session.hold({ useUpdate: true });
 	}
 
-	handleResume()
-	{
+	handleResume() {
 		logger.debug('handleResume()');
 
 		this.props.session.unhold({ useUpdate: true });
 	}
 
-	_handleRemoteStream(stream)
-	{
+	_handleRemoteStream(stream) {
 		logger.debug('_handleRemoteStream() [stream:%o]', stream);
 
 		const remoteVideo = this.refs.remoteVideo;
@@ -316,8 +299,7 @@ export default class Session extends React.Component
 
 		this._checkRemoteVideo(stream);
 
-		stream.addEventListener('addtrack', (event) =>
-		{
+		stream.addEventListener('addtrack', (event) => {
 			const track = event.track;
 
 			if (remoteVideo.srcObject !== stream)
@@ -330,14 +312,12 @@ export default class Session extends React.Component
 
 			this._checkRemoteVideo(stream);
 
-			track.addEventListener('ended', () =>
-			{
+			track.addEventListener('ended', () => {
 				logger.debug('remote track "ended" event [track:%o]', track);
 			});
 		});
 
-		stream.addEventListener('removetrack', () =>
-		{
+		stream.addEventListener('removetrack', () => {
 			if (remoteVideo.srcObject !== stream)
 				return;
 
@@ -350,10 +330,8 @@ export default class Session extends React.Component
 		});
 	}
 
-	_checkRemoteVideo(stream)
-	{
-		if (!this._mounted)
-		{
+	_checkRemoteVideo(stream) {
+		if (!this._mounted) {
 			logger.error('_checkRemoteVideo() | component not mounted');
 
 			return;
@@ -367,7 +345,7 @@ export default class Session extends React.Component
 
 Session.propTypes =
 {
-	session            : PropTypes.object.isRequired,
-	onNotify           : PropTypes.func.isRequired,
-	onHideNotification : PropTypes.func.isRequired
+	session: PropTypes.object.isRequired,
+	onNotify: PropTypes.func.isRequired,
+	onHideNotification: PropTypes.func.isRequired
 };
